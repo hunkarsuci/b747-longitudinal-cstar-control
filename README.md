@@ -89,11 +89,12 @@ This blending reflects pilot sensitivity to both acceleration and pitch rate.
 The elevator command (before saturation) is computed as:
 
 $$
-\delta_{e,\mathrm{cmd}} =
-K_c \bigl(C^*_{\mathrm{cmd}} - C^*\bigr)
-+ K_i \,\xi
-- k_q \,(q - q_f)
-- k_{nz}\,\Delta n_z
+\delta_{e,cmd}
+=
+K_c\,(C^{*}_{cmd}-C^{*})
++K_i\,\xi
+-k_q\,(q-q_f)
+-k_{nz}\,\Delta n_z
 $$
 
 
