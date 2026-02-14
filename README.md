@@ -129,12 +129,9 @@ This preserves damping while removing low-frequency pitch-rate bias.
 
 Back-calculation anti-windup is used:
 
-$$
-e_{nz} = \Delta n_{z,\mathrm{cmd}} - \Delta n_z
-$$
 
 $$
-\dot{\xi}
+\dot{xi}
 =
 e_{nz}
 +
