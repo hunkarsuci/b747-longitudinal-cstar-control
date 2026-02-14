@@ -56,14 +56,10 @@ Elevator dynamics are modeled as a second-order system:
 
 
 $$
-\ddot{\delta}_e
-+
-2\zeta \omega_0 \dot{\delta}_e
-+
-\omega_0^2 \delta_e
-=
-\omega_0^2 \delta_{e,\mathrm{cmd}}
+\ddot{\delta}_e + 2 \zeta \omega_0 \dot{\delta}_e + \omega_0^2 \delta_e
+= \omega_0^2 \delta_{e,\mathrm{cmd}}
 $$
+
 
 This captures actuator bandwidth and phase lag effects.
 
