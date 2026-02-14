@@ -118,17 +118,17 @@ This preserves damping while removing low-frequency pitch-rate bias.
 
 ---
 
-## Anti-Windup Mechanism
+**Anti-windup (back-calculation):**
 
-Back-calculation anti-windup is used:
-
+- $\delta_{e,raw}$: controller output before saturation (unsaturated command)  
+- $\delta_{e,cmd}$: command after saturation (limited command)
 
 $$
 \dot{\xi}
 =
-\left( \Delta n_{z,\mathrm{cmd}} - \Delta n_z \right)
+\left( \Delta n_{z,cmd} - \Delta n_z \right)
 +
-\frac{\delta_{e,\mathrm{cmd}} - \delta_{e,\mathrm{raw}}}{K_{aw}}
+\frac{\delta_{e,cmd} - \delta_{e,raw}}{K_{aw}}
 $$
 
 Where:
