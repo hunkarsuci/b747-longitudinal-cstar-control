@@ -131,9 +131,9 @@ Back-calculation anti-windup is used:
 
 
 $$
-\dot{xi}
+\dot{\xi}
 =
-e_{nz}
+\left( \Delta n_{z,\mathrm{cmd}} - \Delta n_z \right)
 +
 \frac{\delta_{e,\mathrm{cmd}} - \delta_{e,\mathrm{raw}}}{K_{aw}}
 $$
