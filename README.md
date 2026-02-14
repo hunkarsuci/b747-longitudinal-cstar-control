@@ -88,15 +88,7 @@ This blending reflects pilot sensitivity to both acceleration and pitch rate.
 
 The elevator command (before saturation) is computed as:
 
-$$
-\delta_{e,cmd}
-=
-K_c\,(C^{*}_{cmd}-C^{*})
-+K_i\,\xi
--k_q\,(q-q_f)
--k_{nz}\,\Delta n_z
-$$
-
+Here, $\delta_{e,raw}$ is the unsaturated elevator command and $\delta_{e,cmd}$ is the saturated command.
 
 ### Integral Term (Load-Factor Tracking)
 
