@@ -27,12 +27,13 @@ $$
 
 Where:
 
-- $u$ — forward velocity perturbation  
-- $w$ — vertical velocity perturbation  
-- $q$ — pitch rate  
-- $\theta$ — pitch angle  
+- u      — forward velocity perturbation  
+- w      — vertical velocity perturbation  
+- q      — pitch rate  
+- theta  — pitch angle  
 
 The linearized state-space form is:
+
 
 $$
 \dot{x} = A x + B \delta_e
@@ -44,13 +45,15 @@ $$
 \alpha \approx \frac{w}{U_0}
 $$
 
-The $Z_{\dot{\alpha}}$ correction is included in the heave equation to preserve realistic short-period dynamics.
+
+The Z_alpha_dot correction is included in the heave equation to preserve realistic short-period dynamics.
 
 ---
 
 ## Elevator Actuator Model
 
 Elevator dynamics are modeled as a second-order system:
+
 
 $$
 \ddot{\delta}_e
@@ -68,7 +71,7 @@ This captures actuator bandwidth and phase lag effects.
 
 ## C\* Control Law
 
-The C\* handling-quality variable is defined as:
+The C* handling-quality variable is defined as:
 
 $$
 C^* = \Delta n_z + \frac{V_{co}}{g} q
@@ -76,10 +79,10 @@ $$
 
 Where:
 
-- $\Delta n_z$ — incremental load factor  
-- $q$ — pitch rate  
-- $V_{co}$ — blending constant  
-- $g$ — gravitational acceleration  
+- Delta_nz — incremental load factor  
+- q        — pitch rate  
+- Vco      — blending constant  
+- g        — gravitational acceleration  
 
 This blending reflects pilot sensitivity to both acceleration and pitch rate.
 
@@ -87,19 +90,16 @@ This blending reflects pilot sensitivity to both acceleration and pitch rate.
 
 ## Control Architecture
 
-The elevator command is computed as:
+The elevator command (before saturation) is computed as:
 
 $$
-\delta_{e,\mathrm{cmd}}
-=
-K_c \left(C^*_{\mathrm{cmd}} - C^*\right)
-+
-K_i \xi
--
-k_q (q - q_f)
--
-k_{nz} \Delta n_z
+\delta_{e,\mathrm{cmd}} =
+K_c \bigl(C^*_{\mathrm{cmd}} - C^*\bigr)
++ K_i \,\xi
+- k_q \,(q - q_f)
+- k_{nz}\,\Delta n_z
 $$
+
 
 ### Integral Term (Load-Factor Tracking)
 
