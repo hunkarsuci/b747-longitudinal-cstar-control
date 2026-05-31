@@ -143,7 +143,7 @@ This metric reflects pilot sensitivity to both acceleration response and pitch-r
 
 ## Control Law
 
-The load-factor tracking error is:
+The load-factor tracking error is defined as:
 
 $$
 e_{nz} = \Delta n_{z,\mathrm{cmd}} - \Delta n_z
@@ -163,11 +163,11 @@ $$
 
 where:
 
-- \(K_p\): proportional load-factor gain
-- \(K_i\): integral gain
-- \(K_q\): pitch-rate washout feedback gain
-- \(\xi\): integrator state
-- \(q_{\mathrm{wash}}\): washed-out pitch-rate signal
+- $K_p$: proportional load-factor gain
+- $K_i$: integral gain
+- $K_q$: pitch-rate washout feedback gain
+- $\xi$: integrator state
+- $q_{\mathrm{wash}}$: washed-out pitch-rate signal
 
 The elevator command is then limited by actuator saturation:
 
