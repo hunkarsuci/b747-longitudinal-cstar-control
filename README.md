@@ -145,42 +145,29 @@ This metric reflects pilot sensitivity to both acceleration response and pitch-r
 
 The load-factor tracking error is defined as:
 
-$$
-e_{nz} = \Delta n_{z,\mathrm{cmd}} - \Delta n_z
-$$
+```text
+e_nz = Δn_z,cmd - Δn_z
+```
 
 The unsaturated elevator command is computed using proportional load-factor feedback, integral action, and pitch-rate washout damping:
 
-$$
-\delta_{e,\mathrm{raw}}
-=
-K_p e_{nz}
-+
-K_i \xi
-+
-K_q q_{\mathrm{wash}}
-$$
+```text
+δe_raw = Kp · e_nz + Ki · ξ + Kq · q_wash
+```
 
 where:
 
-- $K_p$: proportional load-factor gain
-- $K_i$: integral gain
-- $K_q$: pitch-rate washout feedback gain
-- $\xi$: integrator state
-- $q_{\mathrm{wash}}$: washed-out pitch-rate signal
+- `Kp`: proportional load-factor gain
+- `Ki`: integral gain
+- `Kq`: pitch-rate washout feedback gain
+- `ξ`: integrator state
+- `q_wash`: washed-out pitch-rate signal
 
 The elevator command is then limited by actuator saturation:
 
-$$
-\delta_{e,\mathrm{cmd}}
-=
-\mathrm{sat}
-\left(
-\delta_{e,\mathrm{raw}},
-\delta_{e,\min},
-\delta_{e,\max}
-\right)
-$$
+```text
+δe_cmd = sat(δe_raw, δe_min, δe_max)
+```
 
 ---
 
@@ -190,32 +177,23 @@ The integrator is placed on load-factor error rather than directly on C\*. This 
 
 Without saturation, the integrator evolves as:
 
-$$
-\dot{\xi} = e_{nz}
-$$
+```text
+ξ_dot = e_nz
+```
 
 With back-calculation anti-windup, the implemented form is:
 
-$$
-\dot{\xi}
-=
-e_{nz}
-+
-K_{aw}
-\left(
-\delta_{e,\mathrm{cmd}} - \delta_{e,\mathrm{raw}}
-\right)
-$$
+```text
+ξ_dot = e_nz + Kaw · (δe_cmd - δe_raw)
+```
 
 where:
 
-- \(K_{aw}\): anti-windup gain
-- \(\delta_{e,\mathrm{raw}}\): unsaturated elevator command
-- \(\delta_{e,\mathrm{cmd}}\): saturated elevator command
+- `Kaw`: anti-windup gain
+- `δe_raw`: unsaturated elevator command
+- `δe_cmd`: saturated elevator command
 
 This prevents integrator runaway when the elevator command reaches actuator limits.
-
----
 
 ## Pitch-Rate Washout Filter
 
