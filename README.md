@@ -69,36 +69,36 @@ Pitch-rate washout --------------------------/
 
 The longitudinal state vector is defined as:
 
-$$
-x = [u,\; w,\; q,\; \theta]^T
-$$
+```text
+x = [u, w, q, θ]^T
+```
 
 where:
 
-- \(u\): forward velocity perturbation
-- \(w\): vertical velocity perturbation
-- \(q\): pitch rate
-- \(\theta\): pitch angle
+- `u`: forward velocity perturbation
+- `w`: vertical velocity perturbation
+- `q`: pitch rate
+- `θ`: pitch angle
 
 The linearized aircraft dynamics are represented in state-space form:
 
-$$
-\dot{x} = A x + B \delta_e
-$$
+```text
+x_dot = A x + B δe
+```
 
 where:
 
-- \(A\): longitudinal aircraft dynamics matrix
-- \(B\): elevator input matrix
-- \(\delta_e\): elevator deflection
+- `A`: longitudinal aircraft dynamics matrix
+- `B`: elevator input matrix
+- `δe`: elevator deflection
 
 The small-angle approximation is used to relate vertical velocity perturbation to angle of attack:
 
-$$
-\alpha \approx \frac{w}{U_0}
-$$
+```text
+α ≈ w / U0
+```
 
-The \(Z_{\dot{\alpha}}\) correction is included in the heave equation to preserve more realistic short-period dynamics.
+The `Z_alpha_dot` correction is included in the heave equation to preserve more realistic short-period dynamics.
 
 ---
 
@@ -106,17 +106,16 @@ The \(Z_{\dot{\alpha}}\) correction is included in the heave equation to preserv
 
 Elevator dynamics are modeled as a second-order actuator:
 
-$$
-\ddot{\delta}_e + 2 \zeta \omega_0 \dot{\delta}_e + \omega_0^2 \delta_e
-= \omega_0^2 \delta_{e,\mathrm{cmd}}
-$$
+```text
+δe_ddot + 2ζω0 δe_dot + ω0² δe = ω0² δe_cmd
+```
 
 where:
 
-- \(\delta_e\): actual elevator deflection
-- \(\delta_{e,\mathrm{cmd}}\): commanded elevator deflection after saturation
-- \(\zeta\): actuator damping ratio
-- \(\omega_0\): actuator natural frequency
+- `δe`: actual elevator deflection
+- `δe_cmd`: commanded elevator deflection after saturation
+- `ζ`: actuator damping ratio
+- `ω0`: actuator natural frequency
 
 This captures actuator bandwidth, damping, and phase-lag effects.
 
@@ -124,22 +123,20 @@ This captures actuator bandwidth, damping, and phase-lag effects.
 
 ## C* Handling-Quality Variable
 
-The C\* variable combines incremental normal load factor and pitch rate:
+The C* variable combines incremental normal load factor and pitch rate:
 
-$$
-C^* = \Delta n_z + \frac{V_{co}}{g} q
-$$
+```text
+C* = Δn_z + (Vco / g) q
+```
 
 where:
 
-- \(\Delta n_z\): incremental normal load factor
-- \(q\): pitch rate
-- \(V_{co}\): C\* blending constant
-- \(g\): gravitational acceleration
+- `Δn_z`: incremental normal load factor
+- `q`: pitch rate
+- `Vco`: C* blending constant
+- `g`: gravitational acceleration
 
 This metric reflects pilot sensitivity to both acceleration response and pitch-rate motion.
-
----
 
 ## Control Law
 
