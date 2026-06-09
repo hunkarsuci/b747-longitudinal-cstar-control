@@ -74,20 +74,20 @@ Typical checks include final load-factor error, overshoot, settling time, and ma
 
 ## System Architecture
 
-```text
-Load-factor command
-        |
-        v
-   Load-factor error ----> Integral action ----\
-                                                \
-                                                 + ----> Elevator saturation ----> Actuator ----> Aircraft
-                                                /
-        C* error ------------------------------/
-
-Pitch-rate washout damping --------------------/
-```
+![B747-400 C* longitudinal control system architecture](figures/system_architecture.svg)
 
 The controller generates an elevator command using proportional C* error, integral load-factor error, direct load-factor feedback, and washed-out pitch-rate feedback.
+
+Signal flow:
+
+- The pilot command is a desired incremental normal load factor, `delta_nz_cmd`.
+- The measured `delta_nz` is subtracted from the command to form the load-factor error.
+- Integral action removes steady-state load-factor error.
+- C* feedback shapes the transient response by blending load factor and pitch rate.
+- Pitch-rate washout adds damping without demanding a permanent pitch-rate offset.
+- Elevator saturation limits the command before it reaches the second-order actuator.
+- Back-calculation anti-windup feeds the saturation difference back into the integrator.
+- The aircraft plant returns model-consistent measurements used by the feedback loops.
 
 ## Aircraft Model
 

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="820" viewBox="0 0 1420 820" role="img" aria-labelledby="title desc">
+  <title id="title">B747-400 C* Longitudinal Control System Architecture</title>
+  <desc id="desc">Block diagram showing command shaping, C star feedback, pitch-rate washout, saturation, actuator, aircraft plant, measurements, and anti-windup with clear spacing.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#1f2937"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#2563eb"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .panel { fill: #ffffff; stroke: #d4dce8; stroke-width: 1.5; }
+      .block { fill: #ffffff; stroke: #334155; stroke-width: 1.8; }
+      .controller { fill: #eff6ff; stroke: #2563eb; }
+      .plant { fill: #ecfdf5; stroke: #059669; }
+      .limit { fill: #fff7ed; stroke: #ea580c; }
+      .measure { fill: #f5f3ff; stroke: #7c3aed; }
+      .sum { fill: #ffffff; stroke: #334155; stroke-width: 1.9; }
+      .line { fill: none; stroke: #1f2937; stroke-width: 2.1; marker-end: url(#arrow); }
+      .blue-line { fill: none; stroke: #2563eb; stroke-width: 2.3; marker-end: url(#arrow-blue); }
+      .feedback { fill: none; stroke: #475569; stroke-width: 2; marker-end: url(#arrow); stroke-dasharray: 8 6; }
+      .label { fill: #0f172a; font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 20px; font-weight: 700; }
+      .small { fill: #334155; font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 15px; }
+      .tiny { fill: #475569; font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 13px; }
+      .mono { fill: #0f172a; font-family: Consolas, Menlo, monospace; font-size: 14px; }
+      .wire-label { fill: #334155; font-family: Consolas, Menlo, monospace; font-size: 13px; }
+      .section { fill: #334155; font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 16px; font-weight: 800; letter-spacing: .04em; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1420" height="820"/>
+  <rect class="panel" x="34" y="34" width="1352" height="752" rx="18"/>
+
+  <text x="72" y="84" class="label">B747-400 C* Longitudinal Control Architecture</text>
+  <text x="72" y="113" class="small">Closed-loop load-factor tracking with C* transient shaping, pitch-rate washout damping, actuator dynamics, saturation, and anti-windup.</text>
+
+  <text x="86" y="171" class="section">COMMAND AND ERROR SHAPING</text>
+  <text x="450" y="171" class="section">CONTROLLER</text>
+  <text x="878" y="171" class="section">ACTUATOR AND AIRCRAFT</text>
+  <text x="928" y="565" class="section">MODEL-CONSISTENT MEASUREMENTS</text>
+
+  <rect class="block" x="72" y="214" width="188" height="86" rx="9"/>
+  <text x="119" y="249" class="label">Pilot Input</text>
+  <text x="112" y="275" class="mono">delta_nz_cmd</text>
+
+  <circle class="sum" cx="352" cy="257" r="29"/>
+  <text x="343" y="249" class="label">+</text>
+  <text x="344" y="276" class="label">-</text>
+
+  <rect class="controller block" x="450" y="214" width="210" height="86" rx="9"/>
+  <text x="504" y="249" class="label">Integrator</text>
+  <text x="493" y="275" class="mono">xi_dot = e_nz + AW</text>
+
+  <circle class="sum" cx="752" cy="257" r="29"/>
+  <text x="743" y="265" class="label">+</text>
+
+  <rect class="limit block" x="850" y="214" width="210" height="86" rx="9"/>
+  <text x="906" y="249" class="label">Saturation</text>
+  <text x="917" y="275" class="mono">+/- 25 deg</text>
+
+  <rect class="plant block" x="1140" y="214" width="218" height="86" rx="9"/>
+  <text x="1180" y="249" class="label">Elevator Actuator</text>
+  <text x="1215" y="275" class="mono">2nd order</text>
+
+  <rect class="controller block" x="450" y="370" width="210" height="86" rx="9"/>
+  <text x="503" y="405" class="label">C* Feedback</text>
+  <text x="493" y="431" class="mono">Kc(C*_cmd - C*)</text>
+
+  <rect class="controller block" x="450" y="528" width="210" height="86" rx="9"/>
+  <text x="506" y="563" class="label">q Washout</text>
+  <text x="505" y="589" class="mono">q_wash = q - qf</text>
+
+  <rect class="plant block" x="1140" y="386" width="218" height="92" rx="9"/>
+  <text x="1190" y="422" class="label">B747 Plant</text>
+  <text x="1182" y="449" class="mono">x_dot = A x + B de</text>
+
+  <rect class="measure block" x="928" y="636" width="272" height="96" rx="9"/>
+  <text x="1000" y="672" class="label">Measurements</text>
+  <text x="969" y="700" class="mono">delta_nz = -w_dot / g</text>
+  <text x="970" y="722" class="mono">C* = delta_nz + Vco/g q</text>
+
+  <rect class="block" x="104" y="636" width="236" height="96" rx="9"/>
+  <text x="163" y="672" class="label">Anti-Windup</text>
+  <text x="135" y="700" class="mono">Kaw(de_cmd - de_raw)</text>
+  <text x="164" y="722" class="tiny">back-calculation path</text>
+
+  <path class="line" d="M260 257 H323"/>
+  <path class="line" d="M381 257 H450"/>
+  <path class="line" d="M660 257 H723"/>
+  <path class="line" d="M781 257 H850"/>
+  <path class="line" d="M1060 257 H1140"/>
+  <path class="line" d="M1249 300 V386"/>
+
+  <path class="blue-line" d="M555 300 V326 C555 345 752 345 752 286"/>
+  <path class="blue-line" d="M660 413 H696 C730 413 752 378 752 286"/>
+  <path class="blue-line" d="M660 571 H696 C730 571 752 468 752 286"/>
+
+  <path class="feedback" d="M1249 478 V684 H1200"/>
+  <path class="feedback" d="M928 684 H352 V286"/>
+  <path class="feedback" d="M1064 636 V505 H660"/>
+  <path class="feedback" d="M1064 636 V413 H660"/>
+  <path class="feedback" d="M850 300 H796 V684 H340"/>
+  <path class="feedback" d="M222 636 V300 H352"/>
+
+  <text x="270" y="239" class="wire-label">delta_nz_cmd</text>
+  <text x="397" y="239" class="wire-label">e_nz</text>
+  <text x="676" y="239" class="wire-label">Ki*xi</text>
+  <text x="790" y="239" class="wire-label">delta_e_raw</text>
+  <text x="1074" y="239" class="wire-label">delta_e_cmd</text>
+  <text x="1264" y="350" class="wire-label">delta_e</text>
+
+  <text x="318" y="194" class="small">load-factor error</text>
+  <text x="713" y="194" class="small">command sum</text>
+  <text x="678" y="396" class="wire-label">C* feedback path</text>
+  <text x="678" y="554" class="wire-label">q damping path</text>
+  <text x="746" y="666" class="wire-label">states: u, w, q, theta</text>
+  <text x="356" y="666" class="wire-label">delta_nz feedback</text>
+  <text x="452" y="754" class="tiny">Dashed paths are feedback and anti-windup signals. Solid paths are forward command and plant signals.</text>
+</svg>
