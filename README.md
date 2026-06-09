@@ -1,76 +1,100 @@
 # B747-400 C* Longitudinal Flight Control Simulation
 
-A Python-based closed-loop longitudinal flight-control simulation for a Boeing 747-400 using a classical **C\*** control architecture.
+[![Tests](https://github.com/hunkarsuci/b747-longitudinal-cstar-control/actions/workflows/tests.yml/badge.svg)](https://github.com/hunkarsuci/b747-longitudinal-cstar-control/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Educational use](https://img.shields.io/badge/use-educational-orange.svg)](#disclaimer)
 
-This project demonstrates how aircraft longitudinal dynamics, actuator behavior, load-factor tracking, pitch-rate feedback, washout filtering, and anti-windup logic can be combined into a compact flight-control design study.
+A Python closed-loop longitudinal flight-control simulation for a Boeing 747-400 using a classical **C\*** handling-quality architecture.
 
----
+The project combines linearized longitudinal dynamics, elevator actuator dynamics, load-factor tracking, pitch-rate washout feedback, saturation, and back-calculation anti-windup into a compact control-design study. It also includes pytest coverage and an optional 3D response animation.
 
 ## Overview
 
-The objective of this project is to simulate closed-loop **incremental normal load-factor tracking** for a linearized Boeing 747-400 longitudinal model.
+The main scenario is incremental normal load-factor tracking for a linearized Boeing 747-400 longitudinal model. A +0.2 g command is applied at `t = 1 s`, and the simulation evaluates the closed-loop time response over 30 seconds.
 
-The simulation includes:
+Included features:
 
 - Linearized longitudinal aircraft dynamics
-- Second-order elevator actuator dynamics
-- C\* handling-quality variable
-- PI control for load-factor tracking
+- Model-consistent incremental load-factor measurement
+- Second-order elevator actuator model
+- C* handling-quality variable
+- PI-style control with proportional C* feedback and integral load-factor tracking
 - Pitch-rate washout damping
-- Elevator saturation
+- Elevator command saturation
 - Back-calculation anti-windup
-- Time-domain response analysis
+- Static response plots
+- Optional 3D aircraft response animation
+- Automated pytest checks
 
-This project focuses on **control-system architecture and dynamic-response shaping**, rather than full nonlinear aircraft simulation or certified flight-control implementation.
+## Before You Run: What C* Means
 
----
+If you are new to flight-control design, **C\*** is a handling-quality signal. It is not a new aircraft state by itself. It is a blended response variable that combines what the pilot feels as vertical acceleration with what the pilot sees and senses as pitch motion.
+
+In this project:
+
+```text
+C* = delta_nz + (Vco / g) q
+```
+
+where:
+
+- `delta_nz` is incremental normal load factor, measured in g.
+- `q` is pitch rate, measured in rad/s.
+- `Vco` is a crossover or blending speed, in ft/s.
+- `g` is gravitational acceleration, in ft/s^2.
+
+The first term, `delta_nz`, represents the acceleration response. If the pilot asks for more normal acceleration, the aircraft should produce a matching load-factor change.
+
+The second term, `(Vco / g) q`, adds pitch-rate feel. This matters because two aircraft can produce similar load factor but feel very different to a pilot if one rotates too slowly or too aggressively. C* gives the controller a way to shape both acceleration response and pitch motion together.
+
+For learners, a useful mental model is:
+
+```text
+C* = "felt acceleration" + "pitch-rate feel"
+```
+
+This simulation commands a +0.2 g load-factor step. The controller uses C* mainly for transient handling quality, while the integrator acts on `delta_nz` error so the final load-factor value tracks the command. That split is intentional:
+
+- C* feedback improves the short-term response and aircraft feel.
+- Load-factor integral action removes steady-state acceleration error.
+- Pitch-rate washout damps pitch motion without forcing a permanent pitch-rate bias.
+
+This repository is therefore best understood as an educational control-design example: it shows how a classical aircraft handling-quality idea can be implemented, tested, plotted, and animated in Python.
 
 ## Key Results
 
-For a **+0.2 g step command applied at t = 1 s**, the closed-loop system demonstrates:
+For a +0.2 g step command, the closed-loop response is stable, bounded, and tracks the requested load-factor change with small final error. The exact metrics are printed when the simulation runs:
 
-- Fast load-factor response
-- Small overshoot, approximately 2–3%
-- Smooth settling behavior
-- Stable pitch-rate dynamics
-- Realistic elevator actuator motion
-- Near-zero steady-state load-factor error
-- Controlled integrator behavior during saturation
+```bash
+python src/cstar-b747.py
+```
 
-The C\* response shows an initial undershoot due to the pitch-rate contribution in the blended handling-quality metric. This is expected behavior for this type of control structure.
-
----
+Typical checks include final load-factor error, overshoot, settling time, and maximum elevator usage. The pytest suite also guards against unbounded states and elevator command limit violations.
 
 ## System Architecture
-
-The simulation consists of four main components:
-
-1. **Aircraft longitudinal dynamics**
-2. **Elevator actuator model**
-3. **C\* control law**
-4. **Closed-loop numerical simulation**
-
-The controller generates an elevator command based on load-factor error, integral action, and pitch-rate washout feedback.
 
 ```text
 Load-factor command
         |
         v
-   Load-factor error ----> PI controller ----\
-                                              \
-                                               + ----> Elevator saturation ----> Actuator ----> Aircraft
-                                              /
-Pitch-rate washout --------------------------/
+   Load-factor error ----> Integral action ----\
+                                                \
+                                                 + ----> Elevator saturation ----> Actuator ----> Aircraft
+                                                /
+        C* error ------------------------------/
+
+Pitch-rate washout damping --------------------/
 ```
 
----
+The controller generates an elevator command using proportional C* error, integral load-factor error, direct load-factor feedback, and washed-out pitch-rate feedback.
 
 ## Aircraft Model
 
-The longitudinal state vector is defined as:
+The longitudinal state vector is:
 
 ```text
-x = [u, w, q, θ]^T
+x = [u, w, q, theta]^T
 ```
 
 where:
@@ -78,166 +102,63 @@ where:
 - `u`: forward velocity perturbation
 - `w`: vertical velocity perturbation
 - `q`: pitch rate
-- `θ`: pitch angle
+- `theta`: pitch angle
 
-The linearized aircraft dynamics are represented in state-space form:
-
-```text
-x_dot = A x + B δe
-```
-
-where:
-
-- `A`: longitudinal aircraft dynamics matrix
-- `B`: elevator input matrix
-- `δe`: elevator deflection
-
-The small-angle approximation is used to relate vertical velocity perturbation to angle of attack:
+The state-space model is:
 
 ```text
-α ≈ w / U0
+x_dot = A x + B delta_e
 ```
 
-The `Z_alpha_dot` correction is included in the heave equation to preserve more realistic short-period dynamics.
+The small-angle relation `alpha ~= w / U0` converts angle-of-attack derivatives to `w` derivatives. The `Zalpha_dot` correction is included in the heave equation through:
 
----
+```text
+heave_scale = 1 / (1 - Zalpha_dot / U0)
+```
 
 ## Elevator Actuator Model
 
 Elevator dynamics are modeled as a second-order actuator:
 
 ```text
-δe_ddot + 2ζω0 δe_dot + ω0² δe = ω0² δe_cmd
+delta_e_ddot + 2*zeta*omega0*delta_e_dot + omega0^2*delta_e = omega0^2*delta_e_cmd
 ```
 
-where:
-
-- `δe`: actual elevator deflection
-- `δe_cmd`: commanded elevator deflection after saturation
-- `ζ`: actuator damping ratio
-- `ω0`: actuator natural frequency
-
-This captures actuator bandwidth, damping, and phase-lag effects.
-
----
+This captures finite actuator bandwidth, damping, and phase lag.
 
 ## C* Handling-Quality Variable
 
 The C* variable combines incremental normal load factor and pitch rate:
 
 ```text
-C* = Δn_z + (Vco / g) q
+C* = delta_nz + (Vco / g) q
 ```
 
-where:
-
-- `Δn_z`: incremental normal load factor
-- `q`: pitch rate
-- `Vco`: C* blending constant
-- `g`: gravitational acceleration
-
-This metric reflects pilot sensitivity to both acceleration response and pitch-rate motion.
+The controller uses C* for transient response shaping while integrating `delta_nz` error to remove steady-state load-factor error.
 
 ## Control Law
 
-The load-factor tracking error is defined as:
-
 ```text
-e_nz = Δn_z,cmd - Δn_z
+e_c    = C*_cmd - C*
+e_nz   = delta_nz_cmd - delta_nz
+q_wash = q - qf
+
+delta_e_raw = Kc*e_c + Ki*xi - kq*q_wash - knz*delta_nz
+delta_e_cmd = clip(delta_e_raw, -delta_e_limit, +delta_e_limit)
 ```
 
-The unsaturated elevator command is computed using proportional load-factor feedback, integral action, and pitch-rate washout damping:
+Back-calculation anti-windup is implemented as:
 
 ```text
-δe_raw = Kp · e_nz + Ki · ξ + Kq · q_wash
+xi_dot = e_nz + Kaw*(delta_e_cmd - delta_e_raw)
 ```
 
-where:
-
-- `Kp`: proportional load-factor gain
-- `Ki`: integral gain
-- `Kq`: pitch-rate washout feedback gain
-- `ξ`: integrator state
-- `q_wash`: washed-out pitch-rate signal
-
-The elevator command is then limited by actuator saturation:
+The washout filter is:
 
 ```text
-δe_cmd = sat(δe_raw, δe_min, δe_max)
+qf_dot = (q - qf) / Tw
+q_wash = q - qf
 ```
-
----
-
-## Integral Action and Anti-Windup
-
-The integrator is placed on load-factor error rather than directly on C\*. This prioritizes steady-state acceleration tracking.
-
-Without saturation, the integrator evolves as:
-
-```text
-ξ_dot = e_nz
-```
-
-With back-calculation anti-windup, the implemented form is:
-
-```text
-ξ_dot = e_nz + Kaw · (δe_cmd - δe_raw)
-```
-
-where:
-
-- `Kaw`: anti-windup gain
-- `δe_raw`: unsaturated elevator command
-- `δe_cmd`: saturated elevator command
-
-This prevents integrator runaway when the elevator command reaches actuator limits.
-
-## Pitch-Rate Washout Filter
-
-A washout filter is used to preserve pitch-rate damping while avoiding steady-state pitch-rate trim conflict.
-
-The filter state is:
-
-$$
-\dot{q}_f = \frac{q - q_f}{T_w}
-$$
-
-The washed-out pitch-rate signal is:
-
-$$
-q_{\mathrm{wash}} = q - q_f
-$$
-
-where:
-
-- \(q_f\): low-frequency filtered pitch-rate component
-- \(T_w\): washout time constant
-- \(q_{\mathrm{wash}}\): high-pass pitch-rate feedback signal
-
-This allows the controller to react to transient pitch-rate motion while rejecting low-frequency or steady pitch-rate components.
-
----
-
-## Simulation Scenario
-
-A **+0.2 g step command** is applied at:
-
-$$
-t = 1\ \mathrm{s}
-$$
-
-The simulation is run for 30 seconds to evaluate:
-
-- Transient load-factor response
-- Pitch-rate damping
-- Elevator actuator behavior
-- C\* response
-- Integrator behavior
-- Closed-loop settling characteristics
-
-Longer simulations may show slow bias drift because the model is linearized around a fixed trim condition and does not perform nonlinear re-trimming.
-
----
 
 ## Results
 
@@ -245,101 +166,60 @@ Longer simulations may show slow bias drift because the model is linearized arou
 
 ![Load factor response](figures/nz_response.png)
 
-The load-factor response tracks the +0.2 g command with a fast rise time, limited overshoot, and near-zero steady-state error.
-
 ### Pitch-Rate Response
 
 ![Pitch-rate response](figures/q_response.png)
-
-The pitch-rate response remains stable and well damped due to the washout feedback path.
 
 ### C* Response
 
 ![C* response](figures/cstar_response.png)
 
-The C\* response includes an initial undershoot caused by the pitch-rate contribution in the blended metric.
-
 ### Elevator Response
 
 ![Elevator response](figures/elevator_response.png)
-
-The elevator response shows actuator-limited behavior with smooth second-order dynamics.
 
 ### Integrator State
 
 ![Integrator state](figures/xi_response.png)
 
-The integrator remains bounded due to the back-calculation anti-windup mechanism.
+## 3D Animation
 
----
+Show a 3D animation of the simulated longitudinal response:
 
-## Design Choices
+```bash
+python src/cstar-b747.py --animate-3d
+```
 
-Several control-design choices were made intentionally:
+Save the animation:
 
-- The integrator is placed on \(\Delta n_z\), not directly on C\*, to prioritize load-factor tracking.
-- Pitch-rate washout is used instead of direct pitch-rate feedback to avoid trim bias.
-- Elevator saturation is included to make the simulation more realistic.
-- Back-calculation anti-windup is used to prevent integrator runaway.
-- Gains are tuned for moderate damping and smooth response rather than aggressive tracking.
+```bash
+python src/cstar-b747.py --save-animation figures/b747_3d.gif
+```
 
----
-
-## Limitations
-
-This project is a control-system design demonstration and has several limitations:
-
-- Linearized perturbation model only
-- No nonlinear aircraft equations of motion
-- No automatic re-trimming
-- No gain scheduling across the flight envelope
-- No atmospheric turbulence model
-- No sensor noise or sensor dynamics
-- Simplified actuator representation
-- Not suitable for real aircraft control or certification use
-
----
+The 3D view uses the simulated pitch attitude and vertical velocity perturbation. It is a visualization aid, not a nonlinear aircraft kinematics model.
 
 ## Project Structure
 
 ```text
 b747-longitudinal-cstar-control/
-│
-├── src/
-│   └── cstar-b747.py
-│
-├── figures/
-│   ├── cstar_response.png
-│   ├── elevator_response.png
-│   ├── nz_response.png
-│   ├── q_response.png
-│   └── xi_response.png
-│
-├── requirements.txt
-└── README.md
+|-- .github/workflows/tests.yml
+|-- figures/
+|-- src/
+|   |-- cstar_b747.py
+|   `-- cstar-b747.py
+|-- tests/
+|   `-- test_cstar_b747.py
+|-- pyproject.toml
+|-- requirements.txt
+`-- README.md
 ```
-
----
 
 ## How to Run
-
-Clone the repository:
-
-```bash
-git clone https://github.com/hunkarsuci/b747-longitudinal-cstar-control.git
-cd b747-longitudinal-cstar-control
-```
 
 Install dependencies:
 
 ```bash
 pip install -r requirements.txt
-```
-
-If `requirements.txt` is not available, install the required packages manually:
-
-```bash
-pip install numpy scipy matplotlib
 ```
 
 Run the simulation:
@@ -348,35 +228,36 @@ Run the simulation:
 python src/cstar-b747.py
 ```
 
----
+Regenerate response figures:
 
-## Dependencies
+```bash
+python src/cstar-b747.py --save-figures
+```
 
-The project uses:
+Run tests:
 
-- Python
-- NumPy
-- SciPy
-- Matplotlib
+```bash
+pytest
+```
 
----
+## Design Notes
 
-## Skills Demonstrated
+- The model is linearized around a fixed trim condition.
+- Load factor is computed from the model-consistent `w_dot` equation.
+- The integrator acts on incremental load-factor error rather than directly on C*.
+- Pitch-rate washout keeps transient damping while reducing steady trim conflict.
+- Elevator saturation and anti-windup are included so the controller behaves more realistically under limits.
 
-This project demonstrates practical knowledge of:
+## Limitations
 
-- Flight dynamics
-- Classical control systems
-- State-space modeling
-- Aircraft longitudinal dynamics
-- Numerical simulation
-- PI control
-- Anti-windup design
-- Actuator modeling
-- Python scientific computing
-- Time-domain response analysis
-
----
+- Linear perturbation model only
+- No nonlinear six-degree-of-freedom dynamics
+- No automatic re-trimming
+- No gain scheduling across the flight envelope
+- No atmospheric turbulence model
+- No sensor noise or sensor dynamics
+- Simplified actuator representation
+- Not suitable for real aircraft control or certification use
 
 ## Disclaimer
 
