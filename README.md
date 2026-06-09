@@ -1,6 +1,6 @@
 # B747-400 C* Longitudinal Flight Control Simulation
 
-[![Tests](https://github.com/hunkarsuci/b747-longitudinal-cstar-control/actions/workflows/tests.yml/badge.svg)](https://github.com/hunkarsuci/b747-longitudinal-cstar-control/actions/workflows/tests.yml)
+[![CI](https://github.com/hunkarsuci/b747-longitudinal-cstar-control/actions/workflows/tests.yml/badge.svg)](https://github.com/hunkarsuci/b747-longitudinal-cstar-control/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Educational use](https://img.shields.io/badge/use-educational-orange.svg)](#disclaimer)
@@ -184,6 +184,8 @@ q_wash = q - qf
 
 ## 3D Animation
 
+![B747-400 3D longitudinal response animation](figures/b747_3d.gif)
+
 Show a 3D animation of the simulated longitudinal response:
 
 ```bash
@@ -197,6 +199,10 @@ python src/cstar-b747.py --save-animation figures/b747_3d.gif
 ```
 
 The 3D view uses the simulated pitch attitude and vertical velocity perturbation. It is a visualization aid, not a nonlinear aircraft kinematics model.
+
+## CI Status
+
+This repository includes a GitHub Actions CI workflow that runs `pytest` on Python 3.10, 3.11, and 3.12 for every push and pull request. The CI badge at the top of this README will show the live passing or failing status after the workflow runs on GitHub.
 
 ## Project Structure
 
